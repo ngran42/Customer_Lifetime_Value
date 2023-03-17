@@ -4,9 +4,9 @@ from  pyspark.sql.types import FloatType
 from  pyspark.sql.types import StringType
 from  pyspark.sql.types import TimestampType
 
-orders = sqlContext.table("customer_analytics_ng.orders").cache()
-orders = orders.withColumn("InvoiceDate", orders["InvoiceDate"].cast(StringType()))
-orders = orders.withColumn("InvoiceDate2", orders["InvoiceDate2"].cast(TimestampType()))
+#Extract the following columns from customer transactional table 
+orders = sqlContext.table("customer_orders.orders").cache() #call the orders table 
+orders = orders.withColumn("InvoiceDate", orders["InvoiceDate"].cast(TimestampType()))
 orders = orders.withColumn("UnitPrice", orders["UnitPrice"].cast(FloatType()))
 orders = orders.withColumn("CustomerID", orders["CustomerID"].cast(IntegerType()))
 orders = orders.withColumn("InvoiceNo", orders["InvoiceNo"].cast(StringType()))
@@ -14,6 +14,7 @@ orders = orders.withColumn("Quantity", orders["Quantity"].cast(IntegerType()))
 
 # COMMAND ----------
 
+#Prepare environment 
 import pandas as pd 
 import matplotlib.pyplot as plt 
 import seaborn as sns
@@ -21,15 +22,15 @@ import datetime as dt
 
 # COMMAND ----------
 
-data = orders.toPandas()
+data = orders.toPandas() #export pyspark df to pandas df 
 
 # COMMAND ----------
 
-pd.set_option('display.float_format', lambda x: '%.2f' % x)
+pd.set_option('display.float_format', lambda x: '%.2f' % x) #truncate values to 2 decimals 
 
 # COMMAND ----------
 
-data['InvoiceDate2'] = pd.to_datetime(data['InvoiceDate2'])
+data['InvoiceDate'] = pd.to_datetime(data['InvoiceDate']) #convert date column from string to datetime
 
 # COMMAND ----------
 
@@ -49,12 +50,12 @@ data['TotalPrice'] = data['Quantity'] * data['UnitPrice']
 
 # COMMAND ----------
 
-data['InvoiceDate2'].min(),data['InvoiceDate2'].max()
+data['InvoiceDate'].min(),data['InvoiceDate'].max()
 
 # COMMAND ----------
 
 PRESENT = dt.datetime(2022,10,2)
-data['InvoiceDate2'] = pd.to_datetime(data['InvoiceDate2'])
+data['InvoiceDate'] = pd.to_datetime(data['InvoiceDate'])
 
 # COMMAND ----------
 
@@ -70,7 +71,7 @@ data.head()
 
 # COMMAND ----------
 
-rfm= data.groupby('CustomerID').agg({'InvoiceDate2': lambda date: (PRESENT - date.max()).days,
+rfm= data.groupby('CustomerID').agg({'InvoiceDate': lambda date: (PRESENT - date.max()).days,
                                         'InvoiceNo': lambda num: len(num),
                                         'TotalPrice': lambda price: price.sum()})
 
