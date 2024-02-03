@@ -136,7 +136,7 @@ bgf.predict(t, individual['frequency'], individual['recency'], individual['T'])
 
 from lifetimes.plotting import plot_history_alive
 
-id = 111382774
+id = 111
 days_since_birth = 148
 sp_trans = data.loc[data['CustomerID'] == id]
 plot_history_alive(bgf, days_since_birth, sp_trans, 'InvoiceDate2')
